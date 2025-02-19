@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public class WebServer {
 	public static void start() {
 		DatabaseManager dbManager = new DatabaseManager();
-		Javalin app = Javalin.create().start(8080);
+		Javalin app = Javalin.create().start(8088);
 
 		app.get("/api/planets", ctx -> {
 			JSONArray planets = dbManager.getAllPlanets();

@@ -2,10 +2,14 @@ package de.hhs;
 
 import de.hhs.webserver.WebServer;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
+
+import org.json.JSONObject;
 
 // Server that manages multiple robots
 public class GroundStation {
@@ -53,21 +57,42 @@ public class GroundStation {
 		return robots;
 	}
 
-	// Entry point for the server
 	public static void main(String[] args) {
-
 		new Thread(WebServer::start).start();
 
 		int port = 9000;
 		GroundStation station = new GroundStation(port);
 
-		try (ServerSocket serverSocket = new ServerSocket(port)) {
-			System.out.println("Ground Station listening on port " + port);
-			while (true) {
-				Socket clientSocket = serverSocket.accept();
-				RobotSession session = new RobotSession(station, clientSocket);
-				station.addRobot(session);
-				new Thread(session).start();
+		// **Schritt 1: Benutzer auffordern, einen Roboter zu erstellen**
+		System.out.println("Welcome to the Ground Station!");
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Enter the robot's name: ");
+		String robotName = scanner.nextLine();
+
+		// **Schritt 2: Verbindung zum Roboter herstellen und `init`-Befehl senden**
+		try {
+			System.out.println("Connecting to robot...");
+			Socket robotSocket = new Socket("localhost", 8150);
+			PrintWriter out = new PrintWriter(robotSocket.getOutputStream(), true);
+
+			// `init`-Befehl in JSON-Format
+			JSONObject initCommand = new JSONObject();
+			initCommand.put("CMD", "init");
+			initCommand.put("NAME", robotName);
+
+			// Befehl senden
+			out.println(initCommand.toString());
+			System.out.println("Robot initialized: " + robotName);
+
+			// **Schritt 3: Starte Server zum Empfangen weiterer Roboter**
+			try (ServerSocket serverSocket = new ServerSocket(port)) {
+				System.out.println("Ground Station listening on port " + port);
+				while (true) {
+					Socket clientSocket = serverSocket.accept();
+					RobotSession session = new RobotSession(station, clientSocket);
+					station.addRobot(session);
+					new Thread(session).start();
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
