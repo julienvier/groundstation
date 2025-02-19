@@ -1,66 +1,56 @@
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import de.hhs.DatabaseManager;
+import de.hhs.GroundStation;
+import de.hhs.RobotSession;
 import org.junit.jupiter.api.*;
-import org.mockito.*;
 
-import java.sql.*;
+import java.net.Socket;
+import java.util.Set;
+import java.util.HashSet;
 
-class DatabaseManagerTest {
+class GroundStationTest {
 
-    @Mock private Connection mockConnection;
-    @Mock private PreparedStatement mockStatement;
-    @Mock private ResultSet mockResultSet;
-    private DatabaseManager dbManager;
+    private GroundStation groundStation;
+    private RobotSession mockRobotSession;
 
     @BeforeEach
-    void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this);
-        dbManager = new DatabaseManager() {
-            protected Connection connect() {
-                return mockConnection;
-            }
-        };
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
+    void setUp() {
+        groundStation = new GroundStation(9000);
+        mockRobotSession = mock(RobotSession.class);
+        when(mockRobotSession.getName()).thenReturn("TestRobot");
     }
 
     @Test
-    void testInsertPlanet() throws Exception {
-        when(mockStatement.executeUpdate()).thenReturn(1);
+    void testAddRobot() {
+        groundStation.addRobot(mockRobotSession);
 
-        dbManager.insertPlanet("Pandora", 1000, 1000);
-
-        verify(mockStatement, times(1)).executeUpdate();
+        assertTrue(groundStation.getRobots().contains(mockRobotSession));
     }
 
     @Test
-    void testInsertRobot() throws Exception {
-        when(mockStatement.executeUpdate()).thenReturn(1);
+    void testSendToRobot() {
+        groundStation.addRobot(mockRobotSession);
+        groundStation.sendToRobot("TestRobot", "move");
 
-        dbManager.insertRobot("ACTIVE");
-
-        verify(mockStatement, times(1)).executeUpdate();
+        verify(mockRobotSession, times(1)).send("move");
     }
 
     @Test
-    void testInsertPosition() throws Exception {
-        when(mockStatement.executeUpdate()).thenReturn(1);
+    void testRemoveRobot() {
+        groundStation.addRobot(mockRobotSession);
+        groundStation.removeRobot(mockRobotSession);
 
-        dbManager.insertPosition(1, 1, 10, 20, "SAND");
-
-        verify(mockStatement, times(1)).executeUpdate();
+        assertFalse(groundStation.getRobots().contains(mockRobotSession));
     }
 
     @Test
-    void testGetOrCreateRobot_NewRobot() throws Exception {
-        when(mockStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(false);
-        when(mockStatement.executeUpdate()).thenReturn(1);
+    void testShutdown() {
+        Set<RobotSession> robots = new HashSet<>();
+        robots.add(mockRobotSession);
+        groundStation.shutdown();
 
-        int robotID = dbManager.getOrCreateRobot("Robot123", "ACTIVE");
-
-        assertNotEquals(-1, robotID);
-        verify(mockStatement, times(2)).executeQuery();
+        assertTrue(groundStation.getRobots().isEmpty());
+        verify(mockRobotSession, times(1)).close();
     }
 }
