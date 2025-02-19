@@ -43,8 +43,9 @@ public class WebServer {
 
 		app.post("/api/robots", ctx -> {
 			JSONObject body = new JSONObject(ctx.body());
+			String name = body.getString("name");
 			String status = body.getString("status");
-			dbManager.insertRobot(status);
+			dbManager.insertRobot(name ,status);
 			ctx.status(201).json("{\"message\": \"Robot added\"}");
 		});
 
