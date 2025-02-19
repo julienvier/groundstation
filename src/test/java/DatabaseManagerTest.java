@@ -35,10 +35,10 @@ class DatabaseManagerTest {
     }
 
     @Test
-    void testInsertRoboter() throws Exception {
+    void testInsertRobot() throws Exception {
         when(mockStatement.executeUpdate()).thenReturn(1);
 
-        dbManager.insertRoboter("AKTIV");
+        dbManager.insertRobot("ACTIVE");
 
         verify(mockStatement, times(1)).executeUpdate();
     }
@@ -53,14 +53,14 @@ class DatabaseManagerTest {
     }
 
     @Test
-    void testGetOrCreateRoboter_NewRoboter() throws Exception {
+    void testGetOrCreateRobot_NewRobot() throws Exception {
         when(mockStatement.executeQuery()).thenReturn(mockResultSet);
         when(mockResultSet.next()).thenReturn(false);
         when(mockStatement.executeUpdate()).thenReturn(1);
 
-        int roboterID = dbManager.getOrCreateRoboter("Robot123", "AKTIV");
+        int robotID = dbManager.getOrCreateRobot("Robot123", "ACTIVE");
 
-        assertNotEquals(-1, roboterID);
+        assertNotEquals(-1, robotID);
         verify(mockStatement, times(2)).executeQuery();
     }
 }

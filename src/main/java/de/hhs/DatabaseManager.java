@@ -1,7 +1,6 @@
 package de.hhs;
 
 import java.sql.*;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,51 +13,51 @@ public class DatabaseManager {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    public void insertPlanet(String name, int höhe, int breite) {
-        String sql = "INSERT INTO Planet (Name, Höhe, Breite) VALUES (?, ?, ?)";
+    public void insertPlanet(String name, int height, int width) {
+        String sql = "INSERT INTO Planet (Name, Height, Width) VALUES (?, ?, ?)";
 
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
-            pstmt.setInt(2, höhe);
-            pstmt.setInt(3, breite);
+            pstmt.setInt(2, height);
+            pstmt.setInt(3, width);
             pstmt.executeUpdate();
-            System.out.println("Planet hinzugefügt: " + name);
+            System.out.println("Planet added: " + name);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void insertRoboter(String status) {
-        String sql = "INSERT INTO Roboter (Status) VALUES (?)";
+    public void insertRobot(String status) {
+        String sql = "INSERT INTO Robot (Status) VALUES (?)";
 
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, status);
             pstmt.executeUpdate();
-            System.out.println("Roboter hinzugefügt mit Status: " + status);
+            System.out.println("Robot added with status: " + status);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void insertPosition(int planetID, int roboterID, int x, int y, String beschaffenheit) {
-        String sql = "INSERT INTO Position (PlanetID, RoboterID, X, Y, Beschaffenheit) VALUES (?, ?, ?, ?, ?)";
+    public void insertPosition(int planetID, int robotID, int x, int y, String terrain) {
+        String sql = "INSERT INTO Position (PlanetID, RobotID, X, Y, Terrain) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, planetID);
-            pstmt.setInt(2, roboterID);
+            pstmt.setInt(2, robotID);
             pstmt.setInt(3, x);
             pstmt.setInt(4, y);
-            pstmt.setString(5, beschaffenheit);
+            pstmt.setString(5, terrain);
             pstmt.executeUpdate();
-            System.out.println("Position gespeichert: Roboter " + roboterID + " auf Planet " + planetID + " bei (" + x + "," + y + ")");
+            System.out.println("Position saved: Robot " + robotID + " on Planet " + planetID + " at (" + x + "," + y + ")");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public int getOrCreateRoboter(String name, String status) {
-        String selectSql = "SELECT RoboterID FROM Roboter WHERE Status = ?";
-        String insertSql = "INSERT INTO Roboter (Status) VALUES (?) RETURNING RoboterID";
+    public int getOrCreateRobot(String name, String status) {
+        String selectSql = "SELECT RobotID FROM Robot WHERE Status = ?";
+        String insertSql = "INSERT INTO Robot (Status) VALUES (?) RETURNING RobotID";
 
         try (Connection conn = connect();
              PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
@@ -67,14 +66,14 @@ public class DatabaseManager {
             ResultSet rs = selectStmt.executeQuery();
 
             if (rs.next()) {
-                return rs.getInt("RoboterID");
+                return rs.getInt("RobotID");
             }
 
             try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                 insertStmt.setString(1, status);
                 ResultSet insertRs = insertStmt.executeQuery();
                 if (insertRs.next()) {
-                    return insertRs.getInt("RoboterID");
+                    return insertRs.getInt("RobotID");
                 }
             }
         } catch (SQLException e) {
@@ -83,84 +82,20 @@ public class DatabaseManager {
         return -1;
     }
 
-    public void getPosition(int roboterID) {
-        String sql = "SELECT * FROM Position WHERE RoboterID = ?";
+    public void getPosition(int robotID) {
+        String sql = "SELECT * FROM Position WHERE RobotID = ?";
 
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, roboterID);
+            pstmt.setInt(1, robotID);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                System.out.println("Roboter " + roboterID + " befindet sich auf Planet " + rs.getInt("PlanetID") +
-                        " bei X: " + rs.getInt("X") + ", Y: " + rs.getInt("Y") +
-                        " (Boden: " + rs.getString("Beschaffenheit") + ")");
+                System.out.println("Robot " + robotID + " is located on Planet " + rs.getInt("PlanetID") +
+                        " at X: " + rs.getInt("X") + ", Y: " + rs.getInt("Y") +
+                        " (Terrain: " + rs.getString("Terrain") + ")");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-    public JSONArray getAllPlanets() {
-        JSONArray result = new JSONArray();
-        String sql = "SELECT * FROM \"planet\"";
-
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            while (rs.next()) {
-                JSONObject planet = new JSONObject();
-                planet.put("PlanetID", rs.getInt("PlanetID"));
-                planet.put("Name", rs.getString("Name"));
-                planet.put("Höhe", rs.getInt("Höhe"));
-                planet.put("Breite", rs.getInt("Breite"));
-                result.put(planet);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    public JSONArray getAllRoboter() {
-        JSONArray result = new JSONArray();
-        String sql = "SELECT * FROM roboter";
-
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            while (rs.next()) {
-                JSONObject roboter = new JSONObject();
-                roboter.put("RoboterID", rs.getInt("RoboterID"));
-                roboter.put("Status", rs.getString("Status"));
-                result.put(roboter);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    public JSONArray getAllPositions() {
-        JSONArray result = new JSONArray();
-        String sql = "SELECT * FROM position";
-
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            while (rs.next()) {
-                JSONObject position = new JSONObject();
-                position.put("PositionID", rs.getInt("PositionID"));
-                position.put("PlanetID", rs.getInt("PlanetID"));
-                position.put("RoboterID", rs.getInt("RoboterID"));
-                position.put("X", rs.getInt("X"));
-                position.put("Y", rs.getInt("Y"));
-                position.put("Beschaffenheit", rs.getString("Beschaffenheit"));
-                result.put(position);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
 }
