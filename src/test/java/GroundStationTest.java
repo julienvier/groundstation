@@ -31,7 +31,7 @@ class GroundStationTest {
     @Test
     void testSendToRobot() {
         groundStation.addRobot(mockRobotSession);
-        groundStation.sendToRobot("TestRobot", "move");
+        groundStation.sendToRobot("MegaSafeBot", "land|0|0|EAST");
 
         verify(mockRobotSession, times(1)).send("move");
     }

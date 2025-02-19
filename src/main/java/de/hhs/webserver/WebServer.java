@@ -8,7 +8,14 @@ import org.json.JSONObject;
 public class WebServer {
 	public static void start() {
 		DatabaseManager dbManager = new DatabaseManager();
-		Javalin app = Javalin.create().start(8088);
+
+		Javalin app = Javalin.create(config -> {
+			config.plugins.enableCors(cors -> {
+				cors.add(it -> {
+					it.anyHost(); // erlaubt alle Ursprünge; im Prod sollten Sie hier spezifischer sein
+				});
+			});
+		}).start(8088);
 
 		app.get("/api/planets", ctx -> {
 			JSONArray planets = dbManager.getAllPlanets();
@@ -48,7 +55,6 @@ public class WebServer {
 			int x = body.getInt("x");
 			int y = body.getInt("y");
 			String terrain = body.getString("terrain");
-
 			dbManager.insertPosition(planetID, robotID, x, y, terrain);
 			ctx.status(201).json("{\"message\": \"Position saved\"}");
 		});
