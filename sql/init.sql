@@ -14,18 +14,11 @@ CREATE TABLE IF NOT EXISTS Planet
     Breite INT NOT NULL
     );
 
--- Tabelle für die Roboter (muss als zweites erstellt werden)
-CREATE TABLE IF NOT EXISTS Roboter
+-- Tabelle für die Roboter, wobei der Name als primärer Bezeichner (ID) genutzt wird
+CREATE TABLE IF NOT EXISTS robot
 (
-    RoboterID
-    SERIAL
-    PRIMARY
-    KEY,
-    Status
-    VARCHAR
-(
-    50
-) NOT NULL
+    robotID VARCHAR(100) PRIMARY KEY, -- Hier verwenden wir VARCHAR für die Robot-ID
+    Status VARCHAR(50) NOT NULL
     );
 
 -- Tabelle für die Positionen der Roboter auf den Planeten (muss als letztes erstellt werden)
@@ -42,9 +35,9 @@ CREATE TABLE IF NOT EXISTS Position
 (
     PlanetID
 ) ON DELETE CASCADE,
-    RoboterID INT REFERENCES Roboter
+    robotID VARCHAR REFERENCES robot
 (
-    RoboterID
+    robotID
 )
   ON DELETE SET NULL,
     X INT NOT NULL,

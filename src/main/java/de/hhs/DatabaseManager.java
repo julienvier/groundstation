@@ -30,7 +30,7 @@ public class DatabaseManager {
 
 	// Fügt einen neuen Roboter mit Status "waiting" hinzu
 	public void insertRobot(String name, String status) {
-		String sql = "INSERT INTO Robot (Name, Status) VALUES (?, ?)";
+		String sql = "INSERT INTO robot (robotId, status) VALUES (?, ?)";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, name);
@@ -44,7 +44,7 @@ public class DatabaseManager {
 
 	// Aktualisiert den Status eines Roboters
 	public void updateRobotStatus(String name, String status) {
-		String sql = "UPDATE Robot SET Status = ? WHERE Name = ?";
+		String sql = "UPDATE Robot SET status = ? WHERE Name = ?";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, status);
@@ -147,7 +147,7 @@ public class DatabaseManager {
 
 			while (rs.next()) {
 				JSONObject robot = new JSONObject();
-				robot.put("RobotID", rs.getInt("RobotID"));
+				robot.put("RobotID", rs.getString("RobotID"));
 				robot.put("Status", rs.getString("Status"));
 				result.put(robot);
 			}

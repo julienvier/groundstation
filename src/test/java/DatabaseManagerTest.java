@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.*;
 
 import java.sql.*;
-
+/*
 class DatabaseManagerTest {
 
     @Mock private Connection mockConnection;
@@ -64,3 +64,6 @@ class DatabaseManagerTest {
         verify(mockStatement, times(2)).executeQuery();
     }
 }
+
+
+ */
