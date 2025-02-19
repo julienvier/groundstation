@@ -28,13 +28,29 @@ public class DatabaseManager {
 		}
 	}
 
-	public void insertRobot(String status) {
-		String sql = "INSERT INTO Robot (Status) VALUES (?)";
+	// Fügt einen neuen Roboter mit Status "waiting" hinzu
+	public void insertRobot(String name, String status) {
+		String sql = "INSERT INTO Robot (Name, Status) VALUES (?, ?)";
+
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, name);
+			pstmt.setString(2, status);
+			pstmt.executeUpdate();
+			System.out.println("Robot '" + name + "' added with status: " + status);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Aktualisiert den Status eines Roboters
+	public void updateRobotStatus(String name, String status) {
+		String sql = "UPDATE Robot SET Status = ? WHERE Name = ?";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, status);
+			pstmt.setString(2, name);
 			pstmt.executeUpdate();
-			System.out.println("Robot added with status: " + status);
+			System.out.println("Robot '" + name + "' status updated to: " + status);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -165,5 +181,4 @@ public class DatabaseManager {
 		return result;
 	}
 
-	
 }

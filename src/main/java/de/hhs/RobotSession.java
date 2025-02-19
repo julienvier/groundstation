@@ -3,6 +3,8 @@ package de.hhs;
 import java.io.*;
 import java.net.Socket;
 
+import org.json.JSONObject;
+
 // Manages communication between the robot & the ground station
 // Each robot session runs in a separate thread
 public class RobotSession implements Runnable {
@@ -16,10 +18,11 @@ public class RobotSession implements Runnable {
 	public RobotSession(GroundStation groundStation, Socket robotSocket) {
 		this.groundStation = groundStation;
 		this.robotSocket = robotSocket;
+
 		try {
 			this.commandWriter = new PrintWriter(robotSocket.getOutputStream(), true);
 			this.responseReader = new BufferedReader(new InputStreamReader(robotSocket.getInputStream()));
-			this.name = responseReader.readLine(); // First message expected to be the robot's name
+			this.name = responseReader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -44,45 +47,57 @@ public class RobotSession implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			DatabaseManager dbManager = new DatabaseManager();
+		DatabaseManager dbManager = new DatabaseManager(); // **Hier außerhalb des try-Blocks deklarieren**
 
+		try {
+			// Falls Name nicht bekannt ist, lese ihn aus der Verbindung
 			if (name == null || name.isEmpty()) {
 				name = responseReader.readLine();
 				System.out.println("Robot registered with name: " + name);
+
+				// Setze initialen Status auf "waiting" in der DB
+				dbManager.insertRobot(name, "waiting");
 			}
 
-			int robotID = dbManager.getOrCreateRobot(name, "ACTIVE");
-			int planetID = 1;
+			// Roboter-ID aus der Datenbank holen oder neu anlegen
+			int robotID = dbManager.getOrCreateRobot(name, "waiting");
+			int planetID = 1; // Falls mehrere Planeten existieren, hier anpassen.
 
 			String response;
 			while ((response = responseReader.readLine()) != null) {
 				System.out.println("Robot " + name + " response: " + response);
+				JSONObject jsonResponse = new JSONObject(response);
 
-				if (response.startsWith("scanned:MEASURE|")) {
-					String[] parts = response.split("\\|");
-					if (parts.length == 3) {
-						String terrain = parts[1];
+				// **Roboter landet => Status auf "online" setzen**
+				if (jsonResponse.getString("CMD").equalsIgnoreCase("landed")) {
+					dbManager.updateRobotStatus(name, "online");
+					System.out.println("Robot '" + name + "' is now ONLINE.");
+				}
 
-						send("getpos");
-						String posResponse = responseReader.readLine();
+				// **Scanned-Position speichern**
+				if (jsonResponse.getString("CMD").equalsIgnoreCase("scanned")) {
+					// Fordere aktuelle Position an
+					send("getpos");
+					String posResponse = responseReader.readLine();
+					JSONObject posJson = new JSONObject(posResponse);
 
-						if (posResponse.startsWith("pos:POSITION|")) {
-							String[] posParts = posResponse.split("\\|");
-							if (posParts.length == 4) {
-								int x = Integer.parseInt(posParts[1]);
-								int y = Integer.parseInt(posParts[2]);
+					if (posJson.getString("CMD").equalsIgnoreCase("pos")) {
+						int x = posJson.getInt("X");
+						int y = posJson.getInt("Y");
 
-								dbManager.insertPosition(planetID, robotID, x, y, terrain);
-							}
-						}
+						// Speichere Position in der Datenbank
+						dbManager.insertPosition(planetID, robotID, x, y, "unknown");
+						System.out.println("Position saved: (" + x + ", " + y + ")");
 					}
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
+			// **Roboter entfernt => Status auf "offline" setzen**
+			dbManager.updateRobotStatus(name, "offline"); // Funktioniert jetzt, weil `dbManager` immer verfügbar ist
 			groundStation.removeRobot(this);
+			System.out.println("Robot '" + name + "' is now OFFLINE.");
 			close();
 		}
 	}
