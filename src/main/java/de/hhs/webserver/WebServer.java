@@ -47,6 +47,7 @@ public class WebServer {
 			String status = body.getString("status");
 			dbManager.insertRobot(name ,status);
 			ctx.status(201).json("{\"message\": \"Robot added\"}");
+			//TODO call method to let groundstation know that there is a new robot in the database
 		});
 
 		app.post("/api/positions", ctx -> {
