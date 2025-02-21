@@ -1,20 +1,22 @@
 package de.hhs.webserver;
 
 import de.hhs.DatabaseManager;
-import io.javalin.Javalin;
+import de.hhs.GroundStation;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import io.javalin.Javalin;
 
 public class WebServer {
-	public static void start() {
-		DatabaseManager dbManager = new DatabaseManager();
+	private final GroundStation groundStation;
+	private final DatabaseManager dbManager = new DatabaseManager();
 
+	public WebServer(GroundStation groundStation) {
+		this.groundStation = groundStation;
+	}
+
+	public void start() {
 		Javalin app = Javalin.create(config -> {
-			config.plugins.enableCors(cors -> {
-				cors.add(it -> {
-					it.anyHost(); // erlaubt alle Ursprünge; im Prod sollten Sie hier spezifischer sein
-				});
-			});
+			config.plugins.enableCors(cors -> cors.add(it -> it.anyHost()));
 		}).start(8088);
 
 		app.get("/api/planets", ctx -> {
@@ -45,9 +47,11 @@ public class WebServer {
 			JSONObject body = new JSONObject(ctx.body());
 			String name = body.getString("name");
 			String status = body.getString("status");
-			dbManager.insertRobot(name ,status);
-			ctx.status(201).json("{\"message\": \"Robot added\"}");
-			//TODO call method to let groundstation know that there is a new robot in the database
+
+			// Add the robot to the ground station
+			groundStation.prepareSession(name, status);
+
+			ctx.status(201).json("{\"message\": \"Robot added, waiting for connection\"}");
 		});
 
 		app.post("/api/positions", ctx -> {
