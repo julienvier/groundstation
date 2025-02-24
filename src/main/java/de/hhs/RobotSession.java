@@ -7,8 +7,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-// Manages communication between the robot & the ground station
-// Each robot session runs in a separate thread
 public class RobotSession implements Runnable {
 	private GroundStation groundStation;
 	private Socket robotSocket;
@@ -54,28 +52,34 @@ public class RobotSession implements Runnable {
 	@Override
 	public void run() {
 		try {
-			String firstLine = responseReader.readLine();
-			if (firstLine == null) {
-				System.out.println("Robot disconnected immediately, no init message.");
-				return;
+			String line;
+			while ((line = responseReader.readLine()) != null) {
+				System.out.println("Robot " + name + " says: " + line);
+
+				final String prefix = "[PLANET-RESPONSE] ";
+				if (line.startsWith(prefix)) {
+					line = line.substring(prefix.length());
+				}
+
+				try {
+					JSONObject json = new JSONObject(line);
+
+					String cmd = json.optString("CMD", "").toLowerCase();
+					if (cmd.equals("init")) {
+						JSONObject sizeObj = json.getJSONObject("SIZE");
+						int width = sizeObj.getInt("WIDTH");
+						int height = sizeObj.getInt("HEIGHT");
+						System.out.println("Received init from Robot: Planet size is " + width + " x " + height);
+					}
+					else {
+						processRobotResponse(json.toString());
+					}
+				} catch (Exception e) {
+					System.err.println("Could not parse JSON: " + line);
+				}
 			}
 
-			JSONObject json = new JSONObject(firstLine);
-			String cmd = json.optString("CMD", "");
-			if ("init".equalsIgnoreCase(cmd)) {
-				JSONObject sizeObj = json.getJSONObject("SIZE");
-				int width = sizeObj.getInt("WIDTH");
-				int height = sizeObj.getInt("HEIGHT");
-
-				System.out.println("Received init from Robot: Planet size is " + width + " x " + height);
-			} else {
-				System.out.println("First message was not an init: " + firstLine);
-			}
-
-			String response;
-			while ((response = responseReader.readLine()) != null) {
-				processRobotResponse(response);
-			}
+			System.out.println("Robot " + name + " disconnected or stream ended.");
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -85,23 +89,15 @@ public class RobotSession implements Runnable {
 		}
 	}
 
-
-	private void sendInitialCommands() {
-		// Initialisiere den Roboter oder führe programmatische Aktionen aus
-		JSONObject initCommand = new JSONObject();
-		initCommand.put("NAME", name);
-		send(initCommand.toString());
-	}
-
 	private void processRobotResponse(String response) {
 		System.out.println("Robot " + name + " response: " + response);
 		JSONObject jsonResponse = new JSONObject(response);
 
-		// Beispiel: Wenn der Roboter landet, aktualisiere den Status
-		if (jsonResponse.getString("CMD").equalsIgnoreCase("landed")) {
+		// Beispiel: Wenn der Roboter "CMD":"landed" schickt => Status auf online
+		if (jsonResponse.optString("CMD").equalsIgnoreCase("landed")) {
 			groundStation.updateRobotStatusToOnline(name);
 			System.out.println("Robot '" + name + "' is now ONLINE.");
 		}
-		// Weitere Befehle und Bedingungen hier implementieren...
+		// ... andere Fälle hier ...
 	}
 }
