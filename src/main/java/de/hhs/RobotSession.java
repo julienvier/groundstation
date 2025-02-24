@@ -15,14 +15,16 @@ public class RobotSession implements Runnable {
 	private PrintWriter commandWriter;
 	private BufferedReader responseReader;
 	private String name;
+	private String status;
 
-	public RobotSession(GroundStation groundStation, Socket robotSocket) {
+	public RobotSession(GroundStation groundStation, Socket robotSocket, String name, String status) {
 		this.groundStation = groundStation;
 		this.robotSocket = robotSocket;
+		this.name = name;
+		this.status = status;
 		try {
 			this.commandWriter = new PrintWriter(robotSocket.getOutputStream(), true);
 			this.responseReader = new BufferedReader(new InputStreamReader(robotSocket.getInputStream()));
-			this.name = responseReader.readLine();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -30,6 +32,10 @@ public class RobotSession implements Runnable {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getStatus() {
+		return status;
 	}
 
 	public void send(String command) {

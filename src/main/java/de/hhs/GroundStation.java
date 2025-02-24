@@ -15,6 +15,7 @@ public class GroundStation {
 	private final int port;
 	private Set<RobotSession> robots;
 	private DatabaseManager dbManager;
+	private String lastPreparedRobotName;
 
 	public GroundStation(int port) {
 		this.port = port;
@@ -24,7 +25,7 @@ public class GroundStation {
 
 	public synchronized void addRobot(RobotSession session, String robotName, String status) {
 		robots.add(session);
-		dbManager.insertRobot(robotName, status); // Roboter in DB setzen
+		dbManager.insertRobot(robotName, status);
 		System.out.println("New robot added: " + robotName);
 	}
 
@@ -64,6 +65,7 @@ public class GroundStation {
 
 	public void prepareSession(String robotName, String status) {
 		// Nimmt nur die Registrierung vor. Die echte Socket-Session wird durch den Listener akzeptiert.
+		this.lastPreparedRobotName = robotName;
 		dbManager.insertRobot(robotName, "waiting");
 		System.out.println("Prepared session for Robot: " + robotName + " with status: " + status);
 	}
@@ -87,10 +89,20 @@ public class GroundStation {
 	}
 
 	private void handleNewConnection(Socket robotSocket) {
-		// Roboter Session initialisieren und handhaben
-		RobotSession session = new RobotSession(this, robotSocket);
-		addRobot(session, session.getName(), "waiting");
+		if (lastPreparedRobotName == null) {
+			System.out.println("No prepared robot name. Closing socket.");
+			try { robotSocket.close(); } catch (IOException e) { e.printStackTrace(); }
+			return;
+		}
+
+		String status = "waiting";
+		RobotSession session = new RobotSession(this, robotSocket, lastPreparedRobotName, status);
+
+		addRobot(session, session.getName(), status);
+
 		new Thread(session).start();
+
+		lastPreparedRobotName = null;
 	}
 
 	public static void main(String[] args) {
