@@ -25,8 +25,15 @@ public class GroundStation {
 
 	public synchronized void addRobot(RobotSession session, String robotName, String status) {
 		robots.add(session);
-		dbManager.insertRobot(robotName, status);
-		System.out.println("New robot added: " + robotName);
+
+		// Only insert if the robot doesn't exist, else just update
+		if (!dbManager.robotExists(robotName)) {
+			dbManager.insertRobot(robotName, status);
+		} else {
+			dbManager.updateRobotStatus(robotName, status);
+		}
+
+		System.out.println("New robot added/updated: " + robotName);
 	}
 
 	public synchronized void sendToRobot(String name, String command) {
@@ -100,10 +107,28 @@ public class GroundStation {
 
 		addRobot(session, session.getName(), status);
 
-		new Thread(session).start();
+		try {
+			// Aus dem socket einen Writer erzeugen
+			PrintWriter writer = new PrintWriter(robotSocket.getOutputStream(), true);
 
+			// JSON zusammensetzen
+			String json = "{\"name\":\"" + lastPreparedRobotName + "\"}";
+
+			// An den RemoteRobot senden
+			writer.println(json);
+			writer.flush();
+
+			System.out.println("Sent JSON to RemoteRobot: " + json);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// Thread starten
+		new Thread(session).start();
 		lastPreparedRobotName = null;
 	}
+
+
 
 	public static void main(String[] args) {
 		int port = 9000;

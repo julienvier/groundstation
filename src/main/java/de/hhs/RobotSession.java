@@ -54,10 +54,9 @@ public class RobotSession implements Runnable {
 	@Override
 	public void run() {
 		try {
-			// Beispiel-Initialisierung, sende einen Befehl zum Roboter
-			if (name == null || name.isEmpty()) {
-				sendInitialCommands();
-			}
+			// Always send the init command, regardless of name
+			sendInitialCommands();
+
 			// Roboterantworten lesen
 			String response;
 			while ((response = responseReader.readLine()) != null) {
@@ -74,7 +73,6 @@ public class RobotSession implements Runnable {
 	private void sendInitialCommands() {
 		// Initialisiere den Roboter oder führe programmatische Aktionen aus
 		JSONObject initCommand = new JSONObject();
-		initCommand.put("CMD", "init");
 		initCommand.put("NAME", name);
 		send(initCommand.toString());
 	}

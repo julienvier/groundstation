@@ -44,7 +44,7 @@ public class DatabaseManager {
 
 	// Aktualisiert den Status eines Roboters
 	public void updateRobotStatus(String name, String status) {
-		String sql = "UPDATE Robot SET status = ? WHERE Name = ?";
+		String sql = "UPDATE Robot SET status = ? WHERE robotId = ?";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, status);
@@ -156,6 +156,20 @@ public class DatabaseManager {
 		}
 		return result;
 	}
+
+	public boolean robotExists(String robotId) {
+		String sql = "SELECT 1 FROM robot WHERE robotId = ?"; // or whatever your column is
+		try (Connection conn = connect();
+			 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, robotId);
+			ResultSet rs = pstmt.executeQuery();
+			return rs.next(); // true if at least one row found
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 
 	public JSONArray getAllPositions() {
 		JSONArray result = new JSONArray();
