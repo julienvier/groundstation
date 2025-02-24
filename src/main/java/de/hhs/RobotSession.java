@@ -54,14 +54,29 @@ public class RobotSession implements Runnable {
 	@Override
 	public void run() {
 		try {
-			// Always send the init command, regardless of name
-			sendInitialCommands();
+			String firstLine = responseReader.readLine();
+			if (firstLine == null) {
+				System.out.println("Robot disconnected immediately, no init message.");
+				return;
+			}
 
-			// Roboterantworten lesen
+			JSONObject json = new JSONObject(firstLine);
+			String cmd = json.optString("CMD", "");
+			if ("init".equalsIgnoreCase(cmd)) {
+				JSONObject sizeObj = json.getJSONObject("SIZE");
+				int width = sizeObj.getInt("WIDTH");
+				int height = sizeObj.getInt("HEIGHT");
+
+				System.out.println("Received init from Robot: Planet size is " + width + " x " + height);
+			} else {
+				System.out.println("First message was not an init: " + firstLine);
+			}
+
 			String response;
 			while ((response = responseReader.readLine()) != null) {
 				processRobotResponse(response);
 			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -69,6 +84,7 @@ public class RobotSession implements Runnable {
 			close();
 		}
 	}
+
 
 	private void sendInitialCommands() {
 		// Initialisiere den Roboter oder führe programmatische Aktionen aus
