@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import de.hhs.webserver.WebServer;
 
@@ -137,7 +138,10 @@ public class GroundStation {
 		lastPreparedRobotName = null;
 	}
 
-
+	private static String generateUUID() {
+		UUID uuid = UUID.randomUUID();
+		return uuid.toString();
+	}
 
 	public static void main(String[] args) {
 		int port = 9000;
