@@ -99,10 +99,10 @@ public class DatabaseManager {
 
 			while (rs.next()) {
 				JSONObject planet = new JSONObject();
-				String uuid = GroundStation.generateUUID();
-				planet.put("planetid", rs.getString(uuid));
-				planet.put("height", rs.getInt("height"));
-				planet.put("width", rs.getInt("width"));
+				planet.put("PlanetID", rs.getInt("PlanetID"));
+				planet.put("Name", rs.getString("Name"));
+				planet.put("Height", rs.getInt("Height"));
+				planet.put("Width", rs.getInt("Width"));
 				result.put(planet);
 			}
 		} catch (SQLException e) {
@@ -196,9 +196,9 @@ public class DatabaseManager {
 			return false;
 		}
 	}
-
+	
 	public boolean planetExists(String name) {
-		String sql = "SELECT 1 FROM planet WHERE name = ?";
+		String sql = "SELECT 1 FROM planet WHERE name = ?"; 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, name);
 			ResultSet rs = pstmt.executeQuery();

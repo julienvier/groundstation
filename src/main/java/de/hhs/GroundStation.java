@@ -35,15 +35,15 @@ public class GroundStation {
 
 		System.out.println("New robot added/updated: " + robotName);
 	}
-
-	public synchronized void addPlanet(String planetid, int height, int width) {
+	
+	public synchronized void addPlanet(String name, int height, int width) {
 
 		// Only insert if the planet doesn't exist, else just update
-		if (!dbManager.planetExists(planetid)) {
-			dbManager.insertPlanet(planetid, height, width);
-		}
+		if (!dbManager.planetExists(name)) {
+			dbManager.insertPlanet(name, height, width);
+		} 
 
-		System.out.println("New planet added: " + planetid);
+		System.out.println("New planet added: " + name);
 	}
 
 	public synchronized void sendToRobot(String name, String command) {
@@ -81,8 +81,7 @@ public class GroundStation {
 	// Ergänzung der Methode zum Hinzufügen von Roboter in GroundStation
 
 	public void prepareSession(String robotName, String status) {
-		// Nimmt nur die Registrierung vor. Die echte Socket-Session wird durch den
-		// Listener akzeptiert.
+		// Nimmt nur die Registrierung vor. Die echte Socket-Session wird durch den Listener akzeptiert.
 		this.lastPreparedRobotName = robotName;
 		dbManager.insertRobot(robotName, "waiting");
 		System.out.println("Prepared session for Robot: " + robotName + " with status: " + status);
@@ -109,11 +108,7 @@ public class GroundStation {
 	private void handleNewConnection(Socket robotSocket) {
 		if (lastPreparedRobotName == null) {
 			System.out.println("No prepared robot name. Closing socket.");
-			try {
-				robotSocket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			try { robotSocket.close(); } catch (IOException e) { e.printStackTrace(); }
 			return;
 		}
 

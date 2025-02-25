@@ -73,7 +73,8 @@ public class RobotSession implements Runnable {
 						String uuid = GroundStation.generateUUID();
 						dbManager.insertPlanet(uuid, width, height);
 						System.out.println("Received init from Robot: Planet size is " + width + " x " + height);
-					} else {
+					}
+					else {
 						processRobotResponse(json.toString());
 					}
 				} catch (Exception e) {
