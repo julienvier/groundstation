@@ -34,13 +34,14 @@ public class WebServer {
 			ctx.json(positions.toString());
 		});
 
-		app.post("/api/planets", ctx -> {
-			JSONObject body = new JSONObject(ctx.body());
-			String name = body.getString("name");
-			int height = body.getInt("height");
-			int width = body.getInt("width");
-			dbManager.insertPlanet(name, height, width);
-			ctx.status(201).json("{\"message\": \"Planet added\"}");
+		app.get("/api/testplanet", ctx -> {
+			String uuid = GroundStation.generateUUID();
+			JSONArray planets = dbManager.insertPlanet(uuid ,0 ,0 );
+			if (planets == null) {
+				ctx.status(500).result("Failed to insert planet");
+			} else {
+				ctx.json(planets.toString());
+			}
 		});
 
 		app.post("/api/robots", ctx -> {

@@ -18,8 +18,8 @@ public class DatabaseManager {
 		return DriverManager.getConnection(URL, USER, PASSWORD);
 	}
 
-	public void insertPlanet(String name, int height, int width) {
-		String sql = "INSERT INTO Planet (Name, Height, Width) VALUES (?, ?, ?)";
+	public JSONArray insertPlanet(String name, int height, int width) {
+		String sql = "INSERT INTO Planet (planetid, Height, Width) VALUES (?, ?, ?)";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, name);
@@ -30,6 +30,7 @@ public class DatabaseManager {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 
 	// Fügt einen neuen Roboter mit Status "waiting" hinzu

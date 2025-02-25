@@ -138,7 +138,7 @@ public class GroundStation {
 		lastPreparedRobotName = null;
 	}
 
-	private static String generateUUID() {
+	public static String generateUUID() {
 		UUID uuid = UUID.randomUUID();
 		return uuid.toString();
 	}
