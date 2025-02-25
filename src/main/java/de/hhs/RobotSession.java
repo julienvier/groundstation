@@ -70,8 +70,7 @@ public class RobotSession implements Runnable {
 						int width = sizeObj.getInt("WIDTH");
 						int height = sizeObj.getInt("HEIGHT");
 						System.out.println("Received init from Robot: Planet size is " + width + " x " + height);
-					}
-					else {
+					} else {
 						processRobotResponse(json.toString());
 					}
 				} catch (Exception e) {

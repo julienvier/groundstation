@@ -36,7 +36,7 @@ public class WebServer {
 
 		app.get("/api/testplanet", ctx -> {
 			String uuid = GroundStation.generateUUID();
-			JSONArray planets = dbManager.insertPlanet(uuid ,0 ,0 );
+			JSONArray planets = dbManager.insertPlanet(uuid, 0, 0);
 			if (planets == null) {
 				ctx.status(500).result("Failed to insert planet");
 			} else {
