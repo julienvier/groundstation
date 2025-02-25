@@ -1,7 +1,7 @@
 -- Tabelle für die Planeten (muss zuerst erstellt werden)
 CREATE TABLE IF NOT EXISTS Planet
 (
-    PlanetID
+    Name
     SERIAL
     PRIMARY
     KEY,
