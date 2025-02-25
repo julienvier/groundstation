@@ -1,10 +1,7 @@
 -- Tabelle für die Planeten (muss zuerst erstellt werden)
 CREATE TABLE IF NOT EXISTS Planet
 (
-    PlanetID VARCHAR(100)
-    SERIAL
-    PRIMARY
-    KEY,
+    PlanetID VARCHAR(100) PRIMARY KEY,
     Height INT NOT NULL,
     Width INT NOT NULL
     );
@@ -17,28 +14,11 @@ CREATE TABLE IF NOT EXISTS robot
     );
 
 -- Tabelle für die Positionen der Roboter auf den Planeten (muss als letztes erstellt werden)
-CREATE TABLE IF NOT EXISTS Position
-(
-    PositionID
-    SERIAL
-    PRIMARY
-    KEY,
-    PlanetID
-    INT
-    REFERENCES
-    Planet
-(
-    PlanetID
-) ON DELETE CASCADE,
-    robotID VARCHAR REFERENCES robot
-(
-    robotID
-)
-  ON DELETE SET NULL,
+CREATE TABLE IF NOT EXISTS Position (
+    PositionID SERIAL PRIMARY KEY,
+    PlanetID VARCHAR(100) REFERENCES Planet(PlanetID) ON DELETE CASCADE,
+    robotID VARCHAR(100) REFERENCES robot(robotID) ON DELETE SET NULL,
     X INT NOT NULL,
     Y INT NOT NULL,
-    ground VARCHAR
-(
-    50
-) NOT NULL
-    );
+    ground VARCHAR(50) NOT NULL
+);
