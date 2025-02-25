@@ -1,14 +1,13 @@
 package de.hhs;
 
-import de.hhs.webserver.WebServer;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
+
+import de.hhs.webserver.WebServer;
 
 // Server, der mehrere Roboter verwaltet
 public class GroundStation {
@@ -34,6 +33,16 @@ public class GroundStation {
 		}
 
 		System.out.println("New robot added/updated: " + robotName);
+	}
+	
+	public synchronized void addPlanet(String name, int height, int width) {
+
+		// Only insert if the planet doesn't exist, else just update
+		if (!dbManager.planetExists(name)) {
+			dbManager.insertPlanet(name, height, width);
+		} 
+
+		System.out.println("New planet added: " + name);
 	}
 
 	public synchronized void sendToRobot(String name, String command) {

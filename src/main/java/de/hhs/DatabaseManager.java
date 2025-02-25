@@ -1,6 +1,10 @@
 package de.hhs;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -185,6 +189,18 @@ public class DatabaseManager {
 		String sql = "SELECT 1 FROM robot WHERE robotId = ?"; // or whatever your column is
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, robotId);
+			ResultSet rs = pstmt.executeQuery();
+			return rs.next(); // true if at least one row found
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean planetExists(String name) {
+		String sql = "SELECT 1 FROM planet WHERE name = ?"; 
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, name);
 			ResultSet rs = pstmt.executeQuery();
 			return rs.next(); // true if at least one row found
 		} catch (SQLException e) {

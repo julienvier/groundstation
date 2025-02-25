@@ -5,13 +5,8 @@ CREATE TABLE IF NOT EXISTS Planet
     SERIAL
     PRIMARY
     KEY,
-    Name
-    VARCHAR
-(
-    100
-) NOT NULL,
-    Höhe INT NOT NULL,
-    Breite INT NOT NULL
+    Height INT NOT NULL,
+    Width INT NOT NULL
     );
 
 -- Tabelle für die Roboter, wobei der Name als primärer Bezeichner (ID) genutzt wird
@@ -42,7 +37,7 @@ CREATE TABLE IF NOT EXISTS Position
   ON DELETE SET NULL,
     X INT NOT NULL,
     Y INT NOT NULL,
-    Beschaffenheit VARCHAR
+    ground VARCHAR
 (
     50
 ) NOT NULL
