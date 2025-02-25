@@ -34,16 +34,6 @@ public class WebServer {
 			ctx.json(positions.toString());
 		});
 
-		app.get("/api/testplanet", ctx -> {
-			String uuid = GroundStation.generateUUID();
-			JSONArray planets = dbManager.insertPlanet(uuid ,0 ,0 );
-			if (planets == null) {
-				ctx.status(500).result("Failed to insert planet");
-			} else {
-				ctx.json(planets.toString());
-			}
-		});
-
 		app.post("/api/robots", ctx -> {
 			JSONObject body = new JSONObject(ctx.body());
 			String name = body.getString("name");

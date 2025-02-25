@@ -14,6 +14,7 @@ public class RobotSession implements Runnable {
 	private BufferedReader responseReader;
 	private String name;
 	private String status;
+	private final DatabaseManager dbManager = new DatabaseManager();
 
 	public RobotSession(GroundStation groundStation, Socket robotSocket, String name, String status) {
 		this.groundStation = groundStation;
@@ -69,6 +70,8 @@ public class RobotSession implements Runnable {
 						JSONObject sizeObj = json.getJSONObject("SIZE");
 						int width = sizeObj.getInt("WIDTH");
 						int height = sizeObj.getInt("HEIGHT");
+						String uuid = GroundStation.generateUUID();
+						dbManager.insertPlanet(uuid, width, height);
 						System.out.println("Received init from Robot: Planet size is " + width + " x " + height);
 					}
 					else {
