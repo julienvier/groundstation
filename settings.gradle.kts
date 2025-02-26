@@ -1,2 +1,2 @@
-rootProject.name = "exo"
+rootProject.name = "groundstation"
 
