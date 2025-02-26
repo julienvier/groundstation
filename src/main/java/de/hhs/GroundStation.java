@@ -36,11 +36,11 @@ public class GroundStation {
 		System.out.println("New robot added/updated: " + robotName);
 	}
 	
-	public synchronized void addPlanet(String name, int height, int width) {
+	public synchronized void addPlanet(String name, int width, int height) {
 
 		// Only insert if the planet doesn't exist, else just update
 		if (!dbManager.planetExists(name)) {
-			dbManager.insertPlanet(name, height, width);
+			dbManager.insertPlanet(name, width, height);
 		} 
 
 		System.out.println("New planet added: " + name);

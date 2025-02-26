@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DatabaseManager {
-	private static final String URL = "jdbc:postgresql://localhost:5432/exoplanet_db";
+	private static final String URL = "jdbc:postgresql://172.23.14.82:5432/exoplanet_db";
 	private static final String USER = "admin";
 	private static final String PASSWORD = "12341234";
 
@@ -18,13 +18,13 @@ public class DatabaseManager {
 		return DriverManager.getConnection(URL, USER, PASSWORD);
 	}
 
-	public void insertPlanet(String name, int height, int width) {
-		String sql = "INSERT INTO Planet (planetid, Height, Width) VALUES (?, ?, ?)";
+	public void insertPlanet(String name, int width, int height) {
+		String sql = "INSERT INTO Planet (planetid, Width, Height) VALUES (?, ?, ?)"; 
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, name);
-			pstmt.setInt(2, height);
-			pstmt.setInt(3, width);
+			pstmt.setInt(2, width);
+			pstmt.setInt(3, height);
 			pstmt.executeUpdate();
 			System.out.println("Planet added: " + name);
 		} catch (SQLException e) {
@@ -101,14 +101,34 @@ public class DatabaseManager {
 				JSONObject planet = new JSONObject();
 				planet.put("PlanetID", rs.getInt("PlanetID"));
 				planet.put("Name", rs.getString("Name"));
-				planet.put("Height", rs.getInt("Height"));
 				planet.put("Width", rs.getInt("Width"));
+				planet.put("Height", rs.getInt("Height"));
+				
 				result.put(planet);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	// **!!!!!!!!!!!!!!!!!!!!!!!!!**
+	public JSONObject getLatestPlanetSize() {
+		String sql = "SELECT Height, Width FROM Planet ORDER BY PlanetID DESC LIMIT 1";
+		JSONObject planetSize = new JSONObject();
+		try (Connection conn = connect();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+
+			if (rs.next()) {
+				planetSize.put("Width", rs.getInt("Width"));
+				planetSize.put("Height", rs.getInt("Height"));
+				
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return planetSize;
 	}
 
 	public JSONArray getAllRobots() {
@@ -196,9 +216,9 @@ public class DatabaseManager {
 			return false;
 		}
 	}
-	
+
 	public boolean planetExists(String name) {
-		String sql = "SELECT 1 FROM planet WHERE name = ?"; 
+		String sql = "SELECT 1 FROM planet WHERE name = ?";
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, name);
 			ResultSet rs = pstmt.executeQuery();

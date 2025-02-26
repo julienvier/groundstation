@@ -1,9 +1,10 @@
 package de.hhs.webserver;
 
-import de.hhs.DatabaseManager;
-import de.hhs.GroundStation;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import de.hhs.DatabaseManager;
+import de.hhs.GroundStation;
 import io.javalin.Javalin;
 
 public class WebServer {
@@ -22,6 +23,12 @@ public class WebServer {
 		app.get("/api/planets", ctx -> {
 			JSONArray planets = dbManager.getAllPlanets();
 			ctx.json(planets.toString());
+		});
+
+		// **!!!!!!!!!!!!!!!!!!!!!!!!!**
+		app.get("/api/planet-size", ctx -> {
+			JSONObject planetSize = dbManager.getLatestPlanetSize();
+			ctx.json(planetSize.toString());
 		});
 
 		app.get("/api/robots", ctx -> {

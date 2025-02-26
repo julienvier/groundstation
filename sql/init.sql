@@ -2,8 +2,9 @@
 CREATE TABLE IF NOT EXISTS Planet
 (
     planetid VARCHAR(100) PRIMARY KEY,
-    height INT NOT NULL,
-    width INT NOT NULL
+    width INT NOT NULL,
+    height INT NOT NULL
+    
     );
 
 -- Tabelle für die Roboter, wobei der Name als primärer Bezeichner (ID) genutzt wird
