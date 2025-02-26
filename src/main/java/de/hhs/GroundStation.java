@@ -35,7 +35,9 @@ public class GroundStation {
 
 		System.out.println("New robot added/updated: " + robotName);
 	}
-	
+
+	/**
+	 *
 	public synchronized void addPlanet(String name, int width, int height) {
 
 		// Only insert if the planet doesn't exist, else just update
@@ -53,6 +55,11 @@ public class GroundStation {
 				break;
 			}
 		}
+	}
+	 */
+
+	public void landRobot(String name, int x, int y) {
+		//TODO hier irgendwas oder irgendwie den robot landen oder so?
 	}
 
 	public synchronized void removeRobot(RobotSession session) {
@@ -80,10 +87,10 @@ public class GroundStation {
 
 	// Ergänzung der Methode zum Hinzufügen von Roboter in GroundStation
 
-	public void prepareSession(String robotName, String status) {
+	public void prepareSessionForAddingRobot(String robotName, String status) {
 		// Nimmt nur die Registrierung vor. Die echte Socket-Session wird durch den Listener akzeptiert.
 		this.lastPreparedRobotName = robotName;
-		dbManager.insertRobot(robotName, "waiting");
+		dbManager.insertRobot(robotName, status);
 		System.out.println("Prepared session for Robot: " + robotName + " with status: " + status);
 	}
 

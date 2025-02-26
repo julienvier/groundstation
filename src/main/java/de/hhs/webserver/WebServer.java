@@ -25,7 +25,6 @@ public class WebServer {
 			ctx.json(planets.toString());
 		});
 
-		// **!!!!!!!!!!!!!!!!!!!!!!!!!**
 		app.get("/api/planet-size", ctx -> {
 			JSONObject planetSize = dbManager.getLatestPlanetSize();
 			ctx.json(planetSize.toString());
@@ -41,13 +40,22 @@ public class WebServer {
 			ctx.json(positions.toString());
 		});
 
+		app.post("/api/land", ctx -> {
+			JSONObject body = new JSONObject(ctx.body());
+			int x = body.getInt("x");
+			int y = body.getInt("y");
+			String name = body.getString("name");
+
+			groundStation.landRobot(name, x, y);
+		});
+
 		app.post("/api/robots", ctx -> {
 			JSONObject body = new JSONObject(ctx.body());
 			String name = body.getString("name");
 			String status = body.getString("status");
 
 			// Add the robot to the ground station
-			groundStation.prepareSession(name, status);
+			groundStation.prepareSessionForAddingRobot(name, status);
 
 			ctx.status(201).json("{\"message\": \"Robot added, waiting for connection\"}");
 		});

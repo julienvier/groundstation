@@ -103,4 +103,10 @@ public class RobotSession implements Runnable {
 		}
 		// ... andere Fälle hier ...
 	}
+
+	private void processRobotRequest(String request) {
+		System.out.println("Robot " + name + " request: " + request);
+
+		//TODO move all robot requests to here
+	}
 }
