@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import de.hhs.webserver.WebServer;
+import org.json.JSONObject;
 
 // Server, der mehrere Roboter verwaltet
 public class GroundStation {
@@ -36,17 +37,6 @@ public class GroundStation {
 		System.out.println("New robot added/updated: " + robotName);
 	}
 
-	/**
-	 *
-	public synchronized void addPlanet(String name, int width, int height) {
-
-		// Only insert if the planet doesn't exist, else just update
-		if (!dbManager.planetExists(name)) {
-			dbManager.insertPlanet(name, width, height);
-		} 
-
-		System.out.println("New planet added: " + name);
-	}
 
 	public synchronized void sendToRobot(String name, String command) {
 		for (RobotSession robot : robots) {
@@ -56,10 +46,14 @@ public class GroundStation {
 			}
 		}
 	}
-	 */
 
 	public void landRobot(String name, int x, int y) {
-		//TODO hier irgendwas oder irgendwie den robot landen oder so?
+		JSONObject landingCommand = new JSONObject();
+		landingCommand.put("CMD", "land");
+		landingCommand.put("MESSAGE", "land|" + x + "|" + y + "|NORTH");
+
+		sendToRobot(name, landingCommand.toString());
+		System.out.println("Sent landing command to robot " + name + ": " + landingCommand);
 	}
 
 	public synchronized void removeRobot(RobotSession session) {

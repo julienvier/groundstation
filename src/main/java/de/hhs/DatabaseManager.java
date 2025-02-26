@@ -32,7 +32,6 @@ public class DatabaseManager {
 		}
 	}
 
-	// Fügt einen neuen Roboter mit Status "waiting" hinzu
 	public void insertRobot(String name, String status) {
 		String sql = "INSERT INTO robot (robotId, status) VALUES (?, ?)";
 
@@ -112,7 +111,6 @@ public class DatabaseManager {
 		return result;
 	}
 
-	// **!!!!!!!!!!!!!!!!!!!!!!!!!**
 	public JSONObject getLatestPlanetSize() {
 		String sql = "SELECT Height, Width FROM Planet ORDER BY PlanetID DESC LIMIT 1";
 		JSONObject planetSize = new JSONObject();
@@ -217,16 +215,5 @@ public class DatabaseManager {
 		}
 	}
 
-	public boolean planetExists(String name) {
-		String sql = "SELECT 1 FROM planet WHERE name = ?";
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setString(1, name);
-			ResultSet rs = pstmt.executeQuery();
-			return rs.next(); // true if at least one row found
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
 
 }

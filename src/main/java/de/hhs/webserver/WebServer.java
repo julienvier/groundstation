@@ -44,7 +44,7 @@ public class WebServer {
 			JSONObject body = new JSONObject(ctx.body());
 			int x = body.getInt("x");
 			int y = body.getInt("y");
-			String name = body.getString("name");
+			String name = body.getString("robotID");
 
 			groundStation.landRobot(name, x, y);
 		});
@@ -60,15 +60,5 @@ public class WebServer {
 			ctx.status(201).json("{\"message\": \"Robot added, waiting for connection\"}");
 		});
 
-		app.post("/api/positions", ctx -> {
-			JSONObject body = new JSONObject(ctx.body());
-			int planetID = body.getInt("planetID");
-			int robotID = body.getInt("robotID");
-			int x = body.getInt("x");
-			int y = body.getInt("y");
-			String terrain = body.getString("terrain");
-			dbManager.insertPosition(planetID, robotID, x, y, terrain);
-			ctx.status(201).json("{\"message\": \"Position saved\"}");
-		});
 	}
 }
