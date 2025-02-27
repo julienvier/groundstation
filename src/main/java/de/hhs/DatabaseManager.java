@@ -19,7 +19,7 @@ public class DatabaseManager {
 	}
 
 	public void insertPlanet(String name, int width, int height) {
-		String sql = "INSERT INTO Planet (planetid, Width, Height) VALUES (?, ?, ?)"; 
+		String sql = "INSERT INTO Planet (planetid, Width, Height) VALUES (?, ?, ?)";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, name);
@@ -102,7 +102,7 @@ public class DatabaseManager {
 				planet.put("Name", rs.getString("Name"));
 				planet.put("Width", rs.getInt("Width"));
 				planet.put("Height", rs.getInt("Height"));
-				
+
 				result.put(planet);
 			}
 		} catch (SQLException e) {
@@ -121,7 +121,7 @@ public class DatabaseManager {
 			if (rs.next()) {
 				planetSize.put("Width", rs.getInt("Width"));
 				planetSize.put("Height", rs.getInt("Height"));
-				
+
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -214,6 +214,5 @@ public class DatabaseManager {
 			return false;
 		}
 	}
-
 
 }
