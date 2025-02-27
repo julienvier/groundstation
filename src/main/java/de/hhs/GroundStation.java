@@ -18,6 +18,7 @@ public class GroundStation {
 	private DatabaseManager dbManager;
 	private String lastPreparedRobotName;
 	private final Set<Socket> waitingSockets = new HashSet<>();
+	private RobotSession currentRobotSession = null;
 
 	public GroundStation(int port) {
 		this.port = port;
@@ -36,6 +37,26 @@ public class GroundStation {
 		}
 
 		System.out.println("New robot added/updated: " + robotName);
+	}
+
+	public synchronized void setCurrentRobot(String robotName) {
+		for (RobotSession session : robots) {
+			if (session.getName().equals(robotName)) {
+				currentRobotSession = session;
+				System.out.println("Current robot set to: " + robotName);
+				return;
+			}
+		}
+		System.out.println("Robot " + robotName + " not found.");
+	}
+
+	public synchronized void sendCommandToCurrentRobot(String command) {
+		if (currentRobotSession != null) {
+			currentRobotSession.send(command);
+			System.out.println("Sent command to active robot: " + command);
+		} else {
+			System.out.println("No current robot selected.");
+		}
 	}
 
 	public synchronized void sendToRobot(String name, String command) {

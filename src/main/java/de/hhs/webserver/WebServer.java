@@ -61,5 +61,12 @@ public class WebServer {
 			ctx.status(201).json("{\"message\": \"Robot added, waiting for connection\"}");
 		});
 
+		app.post("/api/currentRobot", ctx -> {
+			JSONObject body = new JSONObject(ctx.body());
+			String robotName = body.getString("name");
+			groundStation.setCurrentRobot(robotName);
+			ctx.status(200).json("{\"message\":\"Robot " + robotName + " is now active.\"}");
+		});
+
 	}
 }
