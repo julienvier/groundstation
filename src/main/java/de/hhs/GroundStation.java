@@ -47,10 +47,10 @@ public class GroundStation {
 		}
 	}
 
-	public void landRobot(String name, int x, int y) {
+	public void landRobot(String name, int x, int y, String direction) {
 		JSONObject landingCommand = new JSONObject();
 		landingCommand.put("CMD", "land");
-		landingCommand.put("MESSAGE", "land|" + x + "|" + y + "|NORTH");
+		landingCommand.put("MESSAGE", "land|" + x + "|" + y + "|" + direction);
 
 		sendToRobot(name, landingCommand.toString());
 		System.out.println("Sent landing command to robot " + name + ": " + landingCommand);
