@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DatabaseManager {
-	private static final String URL = "jdbc:postgresql://localhost:5432/exoplanet_db";
+	private static final String URL = "jdbc:postgresql://172.27.128.1:5432/exoplanet_db";
 	private static final String USER = "admin";
 	private static final String PASSWORD = "12341234";
 
@@ -45,18 +45,21 @@ public class DatabaseManager {
 		}
 	}
 
-	public void insertPosition(int planetID, int robotID, int x, int y, String terrain) {
-		String sql = "INSERT INTO Position (PlanetID, RobotID, X, Y, Terrain) VALUES (?, ?, ?, ?, ?)";
+	public void insertPosition(String planetID, String robotID, int x, int y, String terrain, double temp) {
+		String sql = "INSERT INTO Position (PlanetID, RobotID, X, Y, Ground, Temp) VALUES (?, ?, ?, ?, ?, ?)";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setInt(1, planetID);
-			pstmt.setInt(2, robotID);
+			pstmt.setString(1, planetID);
+			pstmt.setString(2, robotID);
 			pstmt.setInt(3, x);
 			pstmt.setInt(4, y);
 			pstmt.setString(5, terrain);
+			pstmt.setDouble(6, temp);
 			pstmt.executeUpdate();
 			System.out.println(
 					"Position saved: Robot " + robotID + " on Planet " + planetID + " at (" + x + "," + y + ")");
+			System.out.println(
+					"Data saved: Ground " + terrain + " Temperature " + temp);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -99,7 +102,6 @@ public class DatabaseManager {
 			while (rs.next()) {
 				JSONObject planet = new JSONObject();
 				planet.put("PlanetID", rs.getInt("PlanetID"));
-				planet.put("Name", rs.getString("Name"));
 				planet.put("Width", rs.getInt("Width"));
 				planet.put("Height", rs.getInt("Height"));
 
@@ -207,6 +209,32 @@ public class DatabaseManager {
 		String sql = "SELECT 1 FROM robot WHERE robotId = ?"; // or whatever your column is
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, robotId);
+			ResultSet rs = pstmt.executeQuery();
+			return rs.next(); // true if at least one row found
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean planetExists(String planetId) {
+		String sql = "SELECT 1 FROM planet WHERE planetId = ?"; // or whatever your column is
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, planetId);
+			ResultSet rs = pstmt.executeQuery();
+			return rs.next(); // true if at least one row found
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean positionExists(String planetId, int x, int y) {
+		String sql = "SELECT 1 FROM position WHERE planetId = ? AND x = ? AND y = ?"; // or whatever your column is
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, planetId);
+			pstmt.setInt(2, x);
+	        pstmt.setInt(3, y);
 			ResultSet rs = pstmt.executeQuery();
 			return rs.next(); // true if at least one row found
 		} catch (SQLException e) {

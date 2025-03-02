@@ -45,7 +45,7 @@ public class WebServer {
 			int x = body.getInt("x");
 			int y = body.getInt("y");
 			String name = body.getString("robotID");
-			String direction = body.getString("direction");
+			String direction = body.getString("robotDirection");
 
 			groundStation.landRobot(name, x, y, direction);
 		});

@@ -21,5 +21,6 @@ CREATE TABLE IF NOT EXISTS Position (
     robotid VARCHAR(100) REFERENCES robot(robotID) ON DELETE SET NULL,
     X INT NOT NULL,
     Y INT NOT NULL,
-    ground VARCHAR(50) NOT NULL
+    ground VARCHAR(50) NOT NULL,
+    temp REAL NOT NULL
 );

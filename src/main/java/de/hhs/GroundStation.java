@@ -1,15 +1,17 @@
 package de.hhs;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
+
+import org.json.JSONObject;
 
 import de.hhs.webserver.WebServer;
-import org.json.JSONObject;
 
 // Server, der mehrere Roboter verwaltet
 public class GroundStation {
@@ -150,29 +152,43 @@ public class GroundStation {
 			return;
 		}
 
-		// Es gibt einen vorbereiteten Namen – bearbeite diese Verbindung:
-		String status = "waiting";
-		RobotSession session = new RobotSession(this, robotSocket, lastPreparedRobotName, status);
-		addRobot(session, session.getName(), status);
-
 		try {
 			PrintWriter writer = new PrintWriter(robotSocket.getOutputStream(), true);
-			String json = "{\"name\":\"" + lastPreparedRobotName + "\"}";
-			writer.println(json);
-			writer.flush();
-			System.out.println("Sent JSON to RemoteRobot: " + json);
+			JSONObject response = new JSONObject();
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(robotSocket.getInputStream()));
+            String jsonLine = reader.readLine();
+            if (jsonLine == null) {
+                System.out.println("No registration data received.");
+                return;
+            }
+            JSONObject request = new JSONObject(jsonLine);
+            String command = request.optString("CMD", "").toLowerCase();
+			
+            if (command.equals("register")) {
+            	
+            	String robotName  = lastPreparedRobotName;
+            	System.out.println("Registering new robot: " + robotName);
+            	
+            	response.put("name", robotName);
+                writer.println(response.toString());
+                writer.flush();
+        		
+        		// Create and start a new RobotSession
+        		RobotSession session = new RobotSession(this, robotSocket, lastPreparedRobotName, "waiting");
+        		robots.add(session);
+        		new Thread(session).start();
+        		lastPreparedRobotName = null;
+            }
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		new Thread(session).start();
-		lastPreparedRobotName = null;
+		
 	}
 
-	public static String generateUUID() {
-		UUID uuid = UUID.randomUUID();
-		return uuid.toString();
-	}
+	
 
 	public static void main(String[] args) {
 		int port = 9000;

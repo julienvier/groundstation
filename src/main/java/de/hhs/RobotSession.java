@@ -1,17 +1,19 @@
 package de.hhs;
 
-import org.json.JSONObject;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
+
+import org.json.JSONObject;
 
 public class RobotSession implements Runnable {
 	private GroundStation groundStation;
 	private Socket robotSocket;
 	private PrintWriter commandWriter;
 	private BufferedReader responseReader;
+	private String planetId;
 	private String name;
 	private String status;
 	private final DatabaseManager dbManager = new DatabaseManager();
@@ -70,9 +72,14 @@ public class RobotSession implements Runnable {
 						JSONObject sizeObj = json.getJSONObject("SIZE");
 						int width = sizeObj.getInt("WIDTH");
 						int height = sizeObj.getInt("HEIGHT");
-						String uuid = GroundStation.generateUUID();
-						dbManager.insertPlanet(uuid, width, height);
 						System.out.println("Received init from Robot: Planet size is " + width + " x " + height);
+						if (width == 10 && height == 6) {
+							planetId = "DefaultPlanet";
+						}
+						if (!dbManager.planetExists(planetId)) {
+							dbManager.insertPlanet(planetId, width, height);
+						}
+
 					} else {
 						processRobotResponse(json.toString());
 					}
@@ -100,6 +107,12 @@ public class RobotSession implements Runnable {
 			groundStation.updateRobotStatusToOnline(name);
 			System.out.println("Robot '" + name + "' is now ONLINE.");
 		}
+		if (jsonResponse.optString("CMD").equalsIgnoreCase("data")
+				&& !dbManager.positionExists(planetId, jsonResponse.optInt("X"), jsonResponse.optInt("Y"))) {
+			dbManager.insertPosition(planetId, name, jsonResponse.optInt("X"), jsonResponse.optInt("Y"),
+					jsonResponse.optString("GROUND"), jsonResponse.optDouble("TEMP"));
+		}
+
 		// ... andere Fälle hier ...
 	}
 
