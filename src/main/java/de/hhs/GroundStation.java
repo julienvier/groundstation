@@ -118,14 +118,40 @@ public class GroundStation {
 		System.out.println("Sent explore command to robot " + name + ": " + exploreCommand);
 	}
 
-	public void disconnectRobot(String name) {
-		JSONObject disconnectCommand = new JSONObject();
-		disconnectCommand.put("CMD", "disconnect");
+	public synchronized void disconnectRobot(String name) {
+		RobotSession robotToRemove = null;
 
-		sendToRobot(name, disconnectCommand.toString());
-		System.out.println("Sent disconnect command to robot " + name + ": " + disconnectCommand);
+		for (RobotSession robot : robots) {
+			if (robot.getName().equals(name)) {
+				robotToRemove = robot;
+				break;
+			}
+		}
+
+		if (robotToRemove != null) {
+			try {
+
+				JSONObject disconnectCommand = new JSONObject();
+				disconnectCommand.put("CMD", "disconnect");
+				robotToRemove.send(disconnectCommand.toString());
+
+				Thread.sleep(1000);
+
+				robotToRemove.close();
+
+				robots.remove(robotToRemove);
+				System.out.println("Robot " + name + " successfully disconnected from GroundStation.");
+
+				dbManager.deleteRobotFromDatabase(name);
+				System.out.println("Robot " + name + " removed from database.");
+			} catch (Exception e) {
+				System.err.println("Error while disconnecting robot " + name + ": " + e.getMessage());
+			}
+		} else {
+			System.out.println("Robot " + name + " not found in GroundStation.");
+		}
 	}
-	
+
 	public synchronized void removeRobot(RobotSession session) {
 		robots.remove(session);
 		dbManager.updateRobotStatus(session.getName(), "offline");

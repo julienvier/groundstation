@@ -58,8 +58,7 @@ public class DatabaseManager {
 			pstmt.executeUpdate();
 			System.out.println(
 					"Position saved: Robot " + robotID + " on Planet " + planetID + " at (" + x + "," + y + ")");
-			System.out.println(
-					"Data saved: Ground " + terrain + " Temperature " + temp);
+			System.out.println("Data saved: Ground " + terrain + " Temperature " + temp);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -206,6 +205,23 @@ public class DatabaseManager {
 		}
 	}
 
+	public void deleteRobotFromDatabase(String robotName) {
+		String sql = "DELETE FROM robot WHERE robotId = ?";
+
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, robotName);
+			int affectedRows = pstmt.executeUpdate();
+
+			if (affectedRows > 0) {
+				System.out.println("Robot " + robotName + " wurde aus der Datenbank entfernt.");
+			} else {
+				System.out.println("Robot " + robotName + " nicht in der Datenbank gefunden.");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public boolean robotExists(String robotId) {
 		String sql = "SELECT 1 FROM robot WHERE robotId = ?"; // or whatever your column is
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -217,7 +233,7 @@ public class DatabaseManager {
 			return false;
 		}
 	}
-	
+
 	public boolean planetExists(String planetId) {
 		String sql = "SELECT 1 FROM planet WHERE planetId = ?"; // or whatever your column is
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -229,13 +245,13 @@ public class DatabaseManager {
 			return false;
 		}
 	}
-	
+
 	public boolean positionExists(String planetId, int x, int y) {
 		String sql = "SELECT 1 FROM position WHERE planetId = ? AND x = ? AND y = ?"; // or whatever your column is
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, planetId);
 			pstmt.setInt(2, x);
-	        pstmt.setInt(3, y);
+			pstmt.setInt(3, y);
 			ResultSet rs = pstmt.executeQuery();
 			return rs.next(); // true if at least one row found
 		} catch (SQLException e) {
