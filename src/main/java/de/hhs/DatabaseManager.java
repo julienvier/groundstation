@@ -162,11 +162,12 @@ public class DatabaseManager {
 			while (rs.next()) {
 				JSONObject position = new JSONObject();
 				position.put("PositionID", rs.getInt("PositionID"));
-				position.put("PlanetID", rs.getInt("PlanetID"));
-				position.put("RobotID", rs.getInt("RobotID"));
+				position.put("PlanetID", rs.getString("PlanetID"));
+				position.put("RobotID", rs.getString("RobotID"));
 				position.put("X", rs.getInt("X"));
 				position.put("Y", rs.getInt("Y"));
-				position.put("Terrain", rs.getString("Terrain"));
+				position.put("Ground", rs.getString("Ground"));
+				position.put("Temp", rs.getString("Temp"));
 				result.put(position);
 			}
 		} catch (SQLException e) {

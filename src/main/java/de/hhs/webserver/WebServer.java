@@ -49,7 +49,37 @@ public class WebServer {
 
 			groundStation.landRobot(name, x, y, direction);
 		});
+		
+		app.post("/api/move", ctx -> {
+			JSONObject body = new JSONObject(ctx.body());
+			String name = body.getString("robotID");
+			groundStation.moveRobot(name);
+		});
+		
+		app.post("/api/right", ctx -> {
+			JSONObject body = new JSONObject(ctx.body());
+			String name = body.getString("robotID");
+			groundStation.rotateRobotRight(name);
+		});
+		
+		app.post("/api/left", ctx -> {
+			JSONObject body = new JSONObject(ctx.body());
+			String name = body.getString("robotID");
+			groundStation.rotateRobotLeft(name);
+		});
+		
+		app.post("/api/scan", ctx -> {
+			JSONObject body = new JSONObject(ctx.body());
+			String name = body.getString("robotID");
+			groundStation.scanRobot(name);
+		});
 
+		app.post("/api/explore", ctx -> {
+			JSONObject body = new JSONObject(ctx.body());
+			String name = body.getString("robotID");
+			groundStation.exploreRobot(name);
+		});
+		
 		app.post("/api/robots", ctx -> {
 			JSONObject body = new JSONObject(ctx.body());
 			String name = body.getString("name");

@@ -79,6 +79,45 @@ public class GroundStation {
 		System.out.println("Sent landing command to robot " + name + ": " + landingCommand);
 	}
 
+	public void moveRobot(String name) {
+		JSONObject movingCommand = new JSONObject();
+		movingCommand.put("CMD", "move");
+
+		sendToRobot(name, movingCommand.toString());
+		System.out.println("Sent move command to robot " + name + ": " + movingCommand);
+	}
+
+	public void rotateRobotRight(String name) {
+		JSONObject rotateRightCommand = new JSONObject();
+		rotateRightCommand.put("CMD", "rotateright");
+		sendToRobot(name, rotateRightCommand.toString());
+		System.out.println("Sent rotateRight command to robot " + name + ": " + rotateRightCommand);
+	}
+
+	public void rotateRobotLeft(String name) {
+		JSONObject rotateLeftCommand = new JSONObject();
+		rotateLeftCommand.put("CMD", "rotateleft");
+
+		sendToRobot(name, rotateLeftCommand.toString());
+		System.out.println("Sent rotateLeft command to robot " + name + ": " + rotateLeftCommand);
+	}
+
+	public void scanRobot(String name) {
+		JSONObject scanCommand = new JSONObject();
+		scanCommand.put("CMD", "scan");
+
+		sendToRobot(name, scanCommand.toString());
+		System.out.println("Sent scan command to robot " + name + ": " + scanCommand);
+	}
+
+	public void exploreRobot(String name) {
+		JSONObject exploreCommand = new JSONObject();
+		exploreCommand.put("CMD", "explore");
+
+		sendToRobot(name, exploreCommand.toString());
+		System.out.println("Sent explore command to robot " + name + ": " + exploreCommand);
+	}
+
 	public synchronized void removeRobot(RobotSession session) {
 		robots.remove(session);
 		dbManager.updateRobotStatus(session.getName(), "offline");
@@ -155,40 +194,37 @@ public class GroundStation {
 		try {
 			PrintWriter writer = new PrintWriter(robotSocket.getOutputStream(), true);
 			JSONObject response = new JSONObject();
-			
+
 			BufferedReader reader = new BufferedReader(new InputStreamReader(robotSocket.getInputStream()));
-            String jsonLine = reader.readLine();
-            if (jsonLine == null) {
-                System.out.println("No registration data received.");
-                return;
-            }
-            JSONObject request = new JSONObject(jsonLine);
-            String command = request.optString("CMD", "").toLowerCase();
-			
-            if (command.equals("register")) {
-            	
-            	String robotName  = lastPreparedRobotName;
-            	System.out.println("Registering new robot: " + robotName);
-            	
-            	response.put("name", robotName);
-                writer.println(response.toString());
-                writer.flush();
-        		
-        		// Create and start a new RobotSession
-        		RobotSession session = new RobotSession(this, robotSocket, lastPreparedRobotName, "waiting");
-        		robots.add(session);
-        		new Thread(session).start();
-        		lastPreparedRobotName = null;
-            }
+			String jsonLine = reader.readLine();
+			if (jsonLine == null) {
+				System.out.println("No registration data received.");
+				return;
+			}
+			JSONObject request = new JSONObject(jsonLine);
+			String command = request.optString("CMD", "").toLowerCase();
+
+			if (command.equals("register")) {
+
+				String robotName = lastPreparedRobotName;
+				System.out.println("Registering new robot: " + robotName);
+
+				response.put("name", robotName);
+				writer.println(response.toString());
+				writer.flush();
+
+				// Create and start a new RobotSession
+				RobotSession session = new RobotSession(this, robotSocket, lastPreparedRobotName, "waiting");
+				robots.add(session);
+				new Thread(session).start();
+				lastPreparedRobotName = null;
+			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		
 	}
-
-	
 
 	public static void main(String[] args) {
 		int port = 9000;
