@@ -80,6 +80,12 @@ public class WebServer {
 			groundStation.exploreRobot(name);
 		});
 		
+		app.post("/api/disconnect", ctx -> {
+			JSONObject body = new JSONObject(ctx.body());
+			String name = body.getString("robotID");
+			groundStation.disconnectRobot(name);
+		});
+		
 		app.post("/api/robots", ctx -> {
 			JSONObject body = new JSONObject(ctx.body());
 			String name = body.getString("name");

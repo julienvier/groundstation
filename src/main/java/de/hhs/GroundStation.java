@@ -118,6 +118,14 @@ public class GroundStation {
 		System.out.println("Sent explore command to robot " + name + ": " + exploreCommand);
 	}
 
+	public void disconnectRobot(String name) {
+		JSONObject disconnectCommand = new JSONObject();
+		disconnectCommand.put("CMD", "disconnect");
+
+		sendToRobot(name, disconnectCommand.toString());
+		System.out.println("Sent disconnect command to robot " + name + ": " + disconnectCommand);
+	}
+	
 	public synchronized void removeRobot(RobotSession session) {
 		robots.remove(session);
 		dbManager.updateRobotStatus(session.getName(), "offline");
