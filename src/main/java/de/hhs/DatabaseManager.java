@@ -63,7 +63,7 @@ public class DatabaseManager {
 			e.printStackTrace();
 		}
 	}
-	//ADDED!
+	
 	public void updateRobotPosition(String robotID, int x, int y, String direction) {
 	    String sql = "UPDATE robot SET X = ?, Y = ?, direction = ? WHERE robotId = ?";
 
@@ -78,7 +78,7 @@ public class DatabaseManager {
 	        e.printStackTrace();
 	    }
 	}
-	//ADDED!
+	
 
 	public int getOrCreateRobot(String name, String status) {
 		String selectSql = "SELECT RobotID FROM Robot WHERE Status = ?";
