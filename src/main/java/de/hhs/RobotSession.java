@@ -76,6 +76,12 @@ public class RobotSession implements Runnable {
 						if (width == 10 && height == 6) {
 							planetId = "DefaultPlanet";
 						}
+						else if (width == 40 && height == 25) {
+							planetId = "Pandora";
+						}
+						else if (width == 20 && height == 15) {
+							planetId = "Jupitermond";
+						}
 						if (!dbManager.planetExists(planetId)) {
 							dbManager.insertPlanet(planetId, width, height);
 						}
