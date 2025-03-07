@@ -63,22 +63,6 @@ public class DatabaseManager {
 			e.printStackTrace();
 		}
 	}
-	///??????
-	/*public void updateRobotPosition(String robotID, int x, int y, String direction) {
-	    String sql = "UPDATE robot SET X = ?, Y = ?, direction = ? WHERE robotId = ?";
-
-	    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-	        pstmt.setInt(1, x);
-	        pstmt.setInt(2, y);
-	        pstmt.setString(3, direction);
-	        pstmt.setString(4, robotID);
-	        pstmt.executeUpdate();
-	        System.out.println("Updated position: Robot " + robotID + " is now at (" + x + "," + y + ") facing " + direction);
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	}*/
-	
 
 	public int getOrCreateRobot(String name, String status) {
 		String selectSql = "SELECT RobotID FROM Robot WHERE Status = ?";
