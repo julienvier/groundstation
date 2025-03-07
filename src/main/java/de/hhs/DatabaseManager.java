@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DatabaseManager {
-	private static final String URL = "jdbc:postgresql://localhost:5432/exoplanet_db";
+	private static final String URL = "jdbc:postgresql://172.27.128.1:5432/exoplanet_db";
 	private static final String USER = "admin";
 	private static final String PASSWORD = "12341234";
 
@@ -63,6 +63,22 @@ public class DatabaseManager {
 			e.printStackTrace();
 		}
 	}
+	//ADDED!
+	public void updateRobotPosition(String robotID, int x, int y, String direction) {
+	    String sql = "UPDATE robot SET X = ?, Y = ?, direction = ? WHERE robotId = ?";
+
+	    try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        pstmt.setInt(1, x);
+	        pstmt.setInt(2, y);
+	        pstmt.setString(3, direction);
+	        pstmt.setString(4, robotID);
+	        pstmt.executeUpdate();
+	        System.out.println("Updated position: Robot " + robotID + " is now at (" + x + "," + y + ") facing " + direction);
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	}
+	//ADDED!
 
 	public int getOrCreateRobot(String name, String status) {
 		String selectSql = "SELECT RobotID FROM Robot WHERE Status = ?";

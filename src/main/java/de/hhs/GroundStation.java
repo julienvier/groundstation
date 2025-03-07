@@ -78,15 +78,21 @@ public class GroundStation {
 		sendToRobot(name, landingCommand.toString());
 		System.out.println("Sent landing command to robot " + name + ": " + landingCommand);
 	}
+	//CHANGED!
+	public boolean moveRobot(String name) {
+	    JSONObject moveCommand = new JSONObject();
+	    moveCommand.put("CMD", "move");
 
-	public void moveRobot(String name) {
-		JSONObject movingCommand = new JSONObject();
-		movingCommand.put("CMD", "move");
-
-		sendToRobot(name, movingCommand.toString());
-		System.out.println("Sent move command to robot " + name + ": " + movingCommand);
+	    for (RobotSession robot : robots) {
+	        if (robot.getName().equals(name)) {
+	            robot.send(moveCommand.toString());
+	            System.out.println("Sent move command to robot " + name);
+	            return true;
+	        }
+	    }
+	    return false;
 	}
-
+	//CHANGED!
 	public void rotateRobotRight(String name) {
 		JSONObject rotateRightCommand = new JSONObject();
 		rotateRightCommand.put("CMD", "rotateright");
