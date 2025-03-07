@@ -120,16 +120,16 @@ public class RobotSession implements Runnable {
 		}
 
 		
-		if (jsonResponse.optString("CMD").equalsIgnoreCase("moved")) {
+		/*if (jsonResponse.optString("CMD").equalsIgnoreCase("moved")) {
 	        JSONObject position = jsonResponse.getJSONObject("POSITION");
 	        int x = position.getInt("X");
 	        int y = position.getInt("Y");
 	        String direction = position.getString("DIRECTION");
 
 	        // Save the new position in the database (without terrain and temperature)
-	        dbManager.updateRobotPosition(name, x, y, direction);
+	        //dbManager.updateRobotPosition(name, x, y, direction);
 	        System.out.println("Robot '" + name + "' moved to (" + x + "," + y + ") facing " + direction);
-	    }
+	    }*/
 		
 		// ... andere Fälle hier ...
 	}
