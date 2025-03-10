@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DatabaseManager {
-	private static final String URL = "jdbc:postgresql://172.23.14.82:5432/exoplanet_db";
+	private static final String URL = "jdbc:postgresql://172.27.128.1:5432/exoplanet_db";
 	private static final String USER = "admin";
 	private static final String PASSWORD = "12341234";
 
@@ -204,7 +204,7 @@ public class DatabaseManager {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void deleteRobotFromDatabase(String robotName) {
 		String sql = "DELETE FROM robot WHERE robotId = ?";
 
@@ -247,7 +247,7 @@ public class DatabaseManager {
 	}
 
 	public boolean positionExists(String planetId, int x, int y) {
-		String sql = "SELECT 1 FROM position WHERE planetId = ? AND x = ? AND y = ?"; // or whatever your column is
+		String sql = "SELECT 1 FROM position WHERE planetId = ? AND x = ? AND y = ?"; 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, planetId);
 			pstmt.setInt(2, x);

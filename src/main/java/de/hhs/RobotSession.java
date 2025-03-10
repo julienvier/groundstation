@@ -108,11 +108,16 @@ public class RobotSession implements Runnable {
 		System.out.println("Robot " + name + " response: " + response);
 		JSONObject jsonResponse = new JSONObject(response);
 
-		// Beispiel: Wenn der Roboter "CMD":"landed" schickt => Status auf online
 		if (jsonResponse.optString("CMD").equalsIgnoreCase("landed")) {
 			groundStation.updateRobotStatusToOnline(name);
 			System.out.println("Robot '" + name + "' is now ONLINE.");
 		}
+		
+		if (jsonResponse.optString("CMD").equalsIgnoreCase("moved") && !jsonResponse.has("POSITION")) {
+			groundStation.updateOtherRobotPosition(name, jsonResponse.optInt("X"), jsonResponse.optInt("Y"));
+			System.out.println("Robot '" + name + "' is now at " + jsonResponse.optInt("X") + ", " + jsonResponse.optInt("Y") + ".");
+		}
+		
 		if (jsonResponse.optString("CMD").equalsIgnoreCase("data")
 				&& !dbManager.positionExists(planetId, jsonResponse.optInt("X"), jsonResponse.optInt("Y"))) {
 			dbManager.insertPosition(planetId, name, jsonResponse.optInt("X"), jsonResponse.optInt("Y"),

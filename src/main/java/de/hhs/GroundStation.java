@@ -25,7 +25,7 @@ public class GroundStation {
 	public GroundStation(int port) {
 		this.port = port;
 		this.robots = new HashSet<>();
-		this.dbManager = new DatabaseManager(); // Datenbankmanager initialisieren
+		this.dbManager = new DatabaseManager(); 
 	}
 
 	public synchronized void addRobot(RobotSession session, String robotName, String status) {
@@ -52,15 +52,6 @@ public class GroundStation {
 		System.out.println("Robot " + robotName + " not found.");
 	}
 
-	public synchronized void sendCommandToCurrentRobot(String command) {
-		if (currentRobotSession != null) {
-			currentRobotSession.send(command);
-			System.out.println("Sent command to active robot: " + command);
-		} else {
-			System.out.println("No current robot selected.");
-		}
-	}
-
 	public synchronized void sendToRobot(String name, String command) {
 		for (RobotSession robot : robots) {
 			if (robot.getName().equals(name)) {
@@ -76,9 +67,10 @@ public class GroundStation {
 		landingCommand.put("MESSAGE", "land|" + x + "|" + y + "|" + direction);
 
 		sendToRobot(name, landingCommand.toString());
+		updateOtherRobotPosition(name, x, y);
 		System.out.println("Sent landing command to robot " + name + ": " + landingCommand);
 	}
-	//CHANGED!
+	
 	public boolean moveRobot(String name) {
 	    JSONObject moveCommand = new JSONObject();
 	    moveCommand.put("CMD", "move");
@@ -92,7 +84,20 @@ public class GroundStation {
 	    }
 	    return false;
 	}
-	//CHANGED!
+	
+	public void updateOtherRobotPosition(String name, int x, int y) {
+		JSONObject updateCommand = new JSONObject();
+		updateCommand.put("CMD", "update");
+		updateCommand.put("MESSAGE", "update|" + name + "|" + x + "|" + y);
+		
+		for (RobotSession robot : robots) {
+	        if (!robot.getName().equals(name)) {
+	            robot.send(updateCommand.toString());
+	            System.out.println("Sent update command to robot " + name);
+	        }
+	    }
+	}
+	
 	public void rotateRobotRight(String name) {
 		JSONObject rotateRightCommand = new JSONObject();
 		rotateRightCommand.put("CMD", "rotateright");
