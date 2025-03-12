@@ -176,7 +176,7 @@ public class DatabaseManager {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void deleteRobotFromDatabase(String robotName) {
 		String sql = "DELETE FROM robot WHERE robotId = ?";
 

@@ -112,6 +112,12 @@ public class RobotSession implements Runnable {
 			groundStation.updateRobotStatusToOnline(name);
 			System.out.println("Robot '" + name + "' is now ONLINE.");
 		}
+		
+		if (jsonResponse.optString("CMD").equalsIgnoreCase("moved") && !jsonResponse.has("POSITION")) {
+			groundStation.updateOtherRobotPosition(name, jsonResponse.optInt("X"), jsonResponse.optInt("Y"));
+			System.out.println("Robot '" + name + "' is now at " + jsonResponse.optInt("X") + ", " + jsonResponse.optInt("Y") + ".");
+		}
+		
 		if (jsonResponse.optString("CMD").equalsIgnoreCase("data")
 				&& !dbManager.positionExists(planetId, jsonResponse.optInt("X"), jsonResponse.optInt("Y"))) {
 			dbManager.insertPosition(planetId, name, jsonResponse.optInt("X"), jsonResponse.optInt("Y"),
