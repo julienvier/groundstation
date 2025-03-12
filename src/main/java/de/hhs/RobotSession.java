@@ -35,10 +35,6 @@ public class RobotSession implements Runnable {
 		return name;
 	}
 
-	public String getStatus() {
-		return status;
-	}
-
 	public void send(String command) {
 		commandWriter.println(command);
 		commandWriter.flush();
@@ -97,7 +93,11 @@ public class RobotSession implements Runnable {
 			System.out.println("Robot " + name + " disconnected or stream ended.");
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (e.getMessage().equals("Socket closed")) {
+				System.out.println("Robot " + name + " disconnected or stream ended.");
+			} else  {
+				e.printStackTrace();
+			}
 		} finally {
 			groundStation.removeRobot(this);
 			close();
@@ -108,7 +108,6 @@ public class RobotSession implements Runnable {
 		System.out.println("Robot " + name + " response: " + response);
 		JSONObject jsonResponse = new JSONObject(response);
 
-		// Beispiel: Wenn der Roboter "CMD":"landed" schickt => Status auf online
 		if (jsonResponse.optString("CMD").equalsIgnoreCase("landed")) {
 			groundStation.updateRobotStatusToOnline(name);
 			System.out.println("Robot '" + name + "' is now ONLINE.");

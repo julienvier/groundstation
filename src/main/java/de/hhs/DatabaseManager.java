@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DatabaseManager {
-	private static final String URL = "jdbc:postgresql://172.23.14.82:5432/exoplanet_db";
+	private static final String URL = "jdbc:postgresql://localhost:5432/exoplanet_db";
 	private static final String USER = "admin";
 	private static final String PASSWORD = "12341234";
 
@@ -62,32 +62,6 @@ public class DatabaseManager {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public int getOrCreateRobot(String name, String status) {
-		String selectSql = "SELECT RobotID FROM Robot WHERE Status = ?";
-		String insertSql = "INSERT INTO Robot (Status) VALUES (?) RETURNING RobotID";
-
-		try (Connection conn = connect(); PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
-
-			selectStmt.setString(1, status);
-			ResultSet rs = selectStmt.executeQuery();
-
-			if (rs.next()) {
-				return rs.getInt("RobotID");
-			}
-
-			try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
-				insertStmt.setString(1, status);
-				ResultSet insertRs = insertStmt.executeQuery();
-				if (insertRs.next()) {
-					return insertRs.getInt("RobotID");
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return -1;
 	}
 
 	public JSONArray getAllPlanets() {
@@ -191,7 +165,6 @@ public class DatabaseManager {
 		}
 	}
 
-	// Aktualisiert den Status eines Roboters
 	public void updateRobotStatus(String name, String status) {
 		String sql = "UPDATE Robot SET status = ? WHERE robotId = ?";
 
@@ -199,7 +172,6 @@ public class DatabaseManager {
 			pstmt.setString(1, status);
 			pstmt.setString(2, name);
 			pstmt.executeUpdate();
-			System.out.println("Robot '" + name + "' status updated to: " + status);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -223,11 +195,11 @@ public class DatabaseManager {
 	}
 
 	public boolean robotExists(String robotId) {
-		String sql = "SELECT 1 FROM robot WHERE robotId = ?"; // or whatever your column is
+		String sql = "SELECT 1 FROM robot WHERE robotId = ?";
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, robotId);
 			ResultSet rs = pstmt.executeQuery();
-			return rs.next(); // true if at least one row found
+			return rs.next();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -235,11 +207,11 @@ public class DatabaseManager {
 	}
 
 	public boolean planetExists(String planetId) {
-		String sql = "SELECT 1 FROM planet WHERE planetId = ?"; // or whatever your column is
+		String sql = "SELECT 1 FROM planet WHERE planetId = ?";
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, planetId);
 			ResultSet rs = pstmt.executeQuery();
-			return rs.next(); // true if at least one row found
+			return rs.next();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -247,13 +219,13 @@ public class DatabaseManager {
 	}
 
 	public boolean positionExists(String planetId, int x, int y) {
-		String sql = "SELECT 1 FROM position WHERE planetId = ? AND x = ? AND y = ?"; // or whatever your column is
+		String sql = "SELECT 1 FROM position WHERE planetId = ? AND x = ? AND y = ?"; 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, planetId);
 			pstmt.setInt(2, x);
 			pstmt.setInt(3, y);
 			ResultSet rs = pstmt.executeQuery();
-			return rs.next(); // true if at least one row found
+			return rs.next();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;

@@ -13,7 +13,6 @@ import org.json.JSONObject;
 
 import de.hhs.webserver.WebServer;
 
-// Server, der mehrere Roboter verwaltet
 public class GroundStation {
 	private final int port;
 	private Set<RobotSession> robots;
@@ -25,13 +24,12 @@ public class GroundStation {
 	public GroundStation(int port) {
 		this.port = port;
 		this.robots = new HashSet<>();
-		this.dbManager = new DatabaseManager(); // Datenbankmanager initialisieren
+		this.dbManager = new DatabaseManager(); 
 	}
 
 	public synchronized void addRobot(RobotSession session, String robotName, String status) {
 		robots.add(session);
 
-		// Only insert if the robot doesn't exist, else just update
 		if (!dbManager.robotExists(robotName)) {
 			dbManager.insertRobot(robotName, status);
 		} else {
@@ -52,15 +50,6 @@ public class GroundStation {
 		System.out.println("Robot " + robotName + " not found.");
 	}
 
-	public synchronized void sendCommandToCurrentRobot(String command) {
-		if (currentRobotSession != null) {
-			currentRobotSession.send(command);
-			System.out.println("Sent command to active robot: " + command);
-		} else {
-			System.out.println("No current robot selected.");
-		}
-	}
-
 	public synchronized void sendToRobot(String name, String command) {
 		for (RobotSession robot : robots) {
 			if (robot.getName().equals(name)) {
@@ -76,9 +65,10 @@ public class GroundStation {
 		landingCommand.put("MESSAGE", "land|" + x + "|" + y + "|" + direction);
 
 		sendToRobot(name, landingCommand.toString());
+		updateOtherRobotPosition(name, x, y);
 		System.out.println("Sent landing command to robot " + name + ": " + landingCommand);
 	}
-	//CHANGED!
+	
 	public boolean moveRobot(String name) {
 	    JSONObject moveCommand = new JSONObject();
 	    moveCommand.put("CMD", "move");
@@ -92,7 +82,20 @@ public class GroundStation {
 	    }
 	    return false;
 	}
-	//CHANGED!
+	
+	public void updateOtherRobotPosition(String name, int x, int y) {
+		JSONObject updateCommand = new JSONObject();
+		updateCommand.put("CMD", "update");
+		updateCommand.put("MESSAGE", "update|" + name + "|" + x + "|" + y);
+		
+		for (RobotSession robot : robots) {
+	        if (!robot.getName().equals(name)) {
+	            robot.send(updateCommand.toString());
+	            System.out.println("Sent update command to robot " + name);
+	        }
+	    }
+	}
+	
 	public void rotateRobotRight(String name) {
 		JSONObject rotateRightCommand = new JSONObject();
 		rotateRightCommand.put("CMD", "rotateright");
@@ -181,30 +184,25 @@ public class GroundStation {
 		return robots;
 	}
 
-	// Ergänzung der Methode zum Hinzufügen von Roboter in GroundStation
 
 	public void prepareSessionForAddingRobot(String robotName, String status) {
 		this.lastPreparedRobotName = robotName;
 		dbManager.insertRobot(robotName, status);
 		System.out.println("Prepared session for Robot: " + robotName + " with status: " + status);
 
-		// Prüfe, ob eine wartende Verbindung existiert:
 		Socket waitingSocket = null;
 		synchronized (waitingSockets) {
 			if (!waitingSockets.isEmpty()) {
-				// Hole eine beliebige wartende Verbindung
 				waitingSocket = waitingSockets.iterator().next();
 				waitingSockets.remove(waitingSocket);
 			}
 		}
 		if (waitingSocket != null) {
-			// Bearbeite diese Verbindung jetzt
 			System.out.println("Assigning a waiting connection to robot: " + robotName);
 			handleNewConnection(waitingSocket);
 		}
 	}
 
-	// Startet den ServerSocket zum dauerhaften Hören auf Verbindungen
 	public void startListening() {
 		try (ServerSocket serverSocket = new ServerSocket(port)) {
 			System.out.println("Ground Station listening on port " + port);
@@ -253,7 +251,6 @@ public class GroundStation {
 				writer.println(response.toString());
 				writer.flush();
 
-				// Create and start a new RobotSession
 				RobotSession session = new RobotSession(this, robotSocket, lastPreparedRobotName, "waiting");
 				robots.add(session);
 				new Thread(session).start();
@@ -270,10 +267,8 @@ public class GroundStation {
 		int port = 9000;
 		GroundStation station = new GroundStation(port);
 
-		// Startet den HTTP WebServer getrennt in einem anderen Thread
 		new Thread(() -> new WebServer(station).start()).start();
 
-		// Startet den ServerSocket-Listener
 		station.startListening();
 	}
 }

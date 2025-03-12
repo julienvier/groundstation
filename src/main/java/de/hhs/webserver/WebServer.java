@@ -91,7 +91,6 @@ public class WebServer {
 			String name = body.getString("name");
 			String status = body.getString("status");
 
-			// Add the robot to the ground station
 			groundStation.prepareSessionForAddingRobot(name, status);
 
 			ctx.status(201).json("{\"message\": \"Robot added, waiting for connection\"}");
